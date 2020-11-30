@@ -1,0 +1,29 @@
+{
+  "name": "gql-practice",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "webpack"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fortuno01/gql-practice.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fortuno01/gql-practice/issues"
+  },
+  "homepage": "https://github.com/fortuno01/gql-practice#readme",
+  "dependencies": {
+    "graphql": "^15.4.0",
+    "graphql-request": "^3.3.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.8.0",
+    "webpack-cli": "^4.2.0"
+  }
+}
