@@ -3,14 +3,35 @@ import {GraphQLClient, gql} from 'graphql-request'
 const endpoint = 'https://api.github.com/graphql'
 const graphQLClient = new GraphQLClient(endpoint, {
     headers: {
-        authorization: 'Bearer 346016738ed559a2a3811fa4228f16219641d7ea',
+        authorization: 'Bearer ',
     },
 })
+// рендер списка репозиториев
+function renderRepos(data) {
+    const repos = data.repositoryOwner.repositories.nodes
+
+    for ( let key in repos) {
+        $('.list').append(`<button type="button" class="listItem">${repos[key].name}</button>`)
+    }
+}
+// рендер информации по репозиторию
+function renderRepoInfo(data) {
+    const fields = data.repositoryOwner.repository
+
+    Object.entries(fields).forEach((field) => {
+        $('.popup__content').append(`<li><span>${field[0]}:</span> ${field[1]}</li>`)
+    })
+}
+
+function showPopup() {
+    $('body').css('overflow','hidden')
+    $('.popup').removeClass('isHidden')
+}
 
 async function getRepos() {
     const query = gql`
-    { 
-        repositoryOwner(login:"fortuno01")  {
+    query getRepos($login: String!) { 
+        repositoryOwner(login: $login)  {
             repositories(first:10) {
                 nodes {
                     name
@@ -19,13 +40,14 @@ async function getRepos() {
         }
     }
     `
-
-    const data = await graphQLClient.request(query)
-    const repos = data.repositoryOwner.repositories.nodes
-
-    for ( let key in repos) {
-        $('.list').append(`<button type="button" class="listItem">${repos[key].name}</button>`)
+    const variables = {
+        login: "fortuno01",
     }
+
+    const data = await graphQLClient.request(query,variables)
+
+    renderRepos(data)
+
     console.log(data)
 
     $(this).off()
@@ -35,9 +57,9 @@ async function getInfo(e) {
     if (e.target.tagName !== 'BUTTON') return
     const repoName = e.target.innerHTML
     const query = gql`
-    { 
-        repositoryOwner(login:"fortuno01")  {
-            repository(name: "${repoName}") {
+    query getInfo($login: String!,$repoName: String!){ 
+        repositoryOwner(login: $login)  {
+            repository(name: $repoName) {
                 nameWithOwner
                 createdAt
                 diskUsage
@@ -49,21 +71,17 @@ async function getInfo(e) {
         }
     }
     `
-    const data = await graphQLClient.request(query)
-    const fields = data.repositoryOwner.repository
+    const variables = {
+        login: "fortuno01",
+        repoName: `${repoName}`,
+    }
+
+    const data = await graphQLClient.request(query,variables)
 
     showPopup()
-    // заполняем список данными
-    Object.entries(fields).forEach((field) => {
-        $('.popup__content').append(`<li><span>${field[0]}:</span> ${field[1]}</li>`)
-    })
+    renderRepoInfo(data)
 
     console.log(data)
-}
-
-function showPopup() {
-    $('body').css('overflow','hidden')
-    $('.popup').removeClass('isHidden')
 }
 
 $('.getBtn').on('click', getRepos)
